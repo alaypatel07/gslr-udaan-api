@@ -49,8 +49,17 @@ func TestEvent_Register(t *testing.T) {
 		t.Fail()
 	}
 	event, err := redisClient.Search(e.Name)
-	_, ok := event.(map[string]string);
+	data, ok := event.(map[string]string);
 	if !ok {
 		t.Fail()
+	}
+	m, err := e.Map()
+	if err != nil {
+		t.Fail()
+	}
+	for key, value := range data {
+		if m[key] != value {
+			t.Fail()
+		}
 	}
 }
