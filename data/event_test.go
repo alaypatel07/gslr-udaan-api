@@ -62,4 +62,5 @@ func TestEvent_Register(t *testing.T) {
 			t.Fail()
 		}
 	}
+	redisClient.Delete(e.Name)
 }
