@@ -33,13 +33,12 @@ func init() {
 
 // Register Event to the Database
 func (e *Event)Register() error {
-	if m, err := e.Map(); err != nil {
+	m, err := e.Map();
+	if err != nil {
 		return err
-	} else {
-		if _, err := redisClient.Insert(e.Name, m); err != nil {
-			return err
-		} else {
-			return nil
-		}
 	}
+	if _, err := redisClient.Insert(e.Name, m); err != nil {
+		return err
+	}
+	return nil
 }

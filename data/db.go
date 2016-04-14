@@ -56,7 +56,6 @@ func (r *RedisDatabaseManager)Insert(key string, v interface{}) (Result, error) 
 	default:
 		return nil, errors.New("Not a valid Redis data type")
 	}
-	return nil, errors.New("Unexpected Error")
 }
 
 func (r *RedisDatabaseManager)Delete(key string) (Result, error) {
