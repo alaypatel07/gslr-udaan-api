@@ -1,6 +1,8 @@
 package pubsub
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestNewChannel(t *testing.T) {
 	c := NewChannel("foo")
@@ -17,15 +19,6 @@ func TestNewClient(t *testing.T) {
 	}
 }
 
-func TestChannel_Subscribe(t *testing.T) {
-	ch := NewChannel("foo")
-	c := NewClient()
-	ch.Subscribe(c)
-	if len(ch.Clients) != 1 {
-		t.Fail()
-	}
-}
-
 func TestClient_Subscribe(t *testing.T) {
 	ch := NewChannel("foo")
 	c := NewClient()
@@ -39,12 +32,22 @@ func TestChannel_Publish(t *testing.T) {
 	ch := NewChannel("foo")
 	c1 := NewClient()
 	c2 := NewClient()
-	ch.Publish("Working")
-	c2Data := <- c2.C["foo"]
-	c1Data := <- c1.C["foo"]
-	c1StringData, _ := c1Data.(string)
-	c2StringData, _ := c2Data.(string)
-	if c1StringData != "working" || c2StringData != "working" {
+	ch.Subscribe(c1)
+	ch.Subscribe(c2)
+	go func() {
+		c2Data := <- c2.C["foo"]
+		c2StringData, _ := c2Data.(string)
+		if c2StringData != "working" {
 		t.Fail()
 	}
+	}()
+	go func() {
+		c1Data := <- c1.C["foo"]
+		c1StringData, _ := c1Data.(string)
+		if c1StringData != "working" {
+			t.Fail()
+		}
+	}()
+	ch.Publish("working")
+
 }

@@ -1,5 +1,10 @@
 package pubsub
 
+//TODO :
+//	1) improve the design of data structures using interfaces
+//	2) Add comments
+
+
 type Client struct {
 	C map[string] chan interface{}
 }
@@ -25,12 +30,13 @@ func NewChannel(name string) *Channel {
 }
 
 func (c *Channel)Subscribe(cli *Client) {
+	cli.C[c.Name] = make(chan interface{})
 	c.Clients = append(c.Clients, cli)
 }
 
-
 func (c *Channel)Publish(v interface{}) {
 	for _, client := range c.Clients {
-		client.C[c.Name] <- v
+		//fmt.Println("Published", v, "to", *client)
+		(*client).C[c.Name] <- v
 	}
 }
