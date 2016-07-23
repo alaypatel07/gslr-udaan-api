@@ -68,3 +68,4 @@ _testmain.go
 
 *.exe
 *.test
+/.idea/
