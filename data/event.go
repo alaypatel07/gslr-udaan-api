@@ -6,6 +6,7 @@ import (
 
 var redisClient *RedisDatabaseManager
 
+//Participant holds Participant name
 type Participant struct {
 	Team string `json:"team"`
 	Name string `json:"name"`
@@ -16,6 +17,9 @@ type Event struct {
 	Participants []Participant `json:"participants"`
 }
 
+//Map is required for transferring the golang data structures to
+//redis data structures. Returns a map with event names as key and
+//list of participants as values.
 func (e *Event)Map() (map[string]string, error) {
 	m := make(map[string]string)
 	for _, team := range e.Participants {
