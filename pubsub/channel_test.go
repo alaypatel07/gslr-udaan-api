@@ -2,52 +2,48 @@ package pubsub
 
 import (
 	"testing"
+	"time"
 )
+type consumer struct {
+	d string
+}
+
+func (c consumer) Consume (data interface{}) {
+	c.d = data.(string)
+}
 
 func TestNewChannel(t *testing.T) {
+	//Test to create new channel
 	c := NewChannel("foo")
-	if c.Name != "foo" && len(c.Clients) != 0{
+	if (*cs.channels["foo"]).name != (*c).name {
+		t.Fail()
+	}
+	//Test trying to create already created channel
+	c1 := NewChannel("foo")
+	if c != c1 {
 		t.Fail()
 	}
 }
 
-func TestNewClient(t *testing.T) {
-	c := NewClient()
-	if c.C == nil {
-		t.Fail()
-
-	}
-}
-
-func TestClient_Subscribe(t *testing.T) {
-	ch := NewChannel("foo")
-	c := NewClient()
-	c.Subscribe(ch)
-	if len(ch.Clients) != 1 {
+func TestNewPublisher(t *testing.T) {
+	p := NewPublisher("foo")
+	if ((*cs.channels["foo"]).name != p.c.name) {
 		t.Fail()
 	}
 }
 
-func TestChannel_Publish(t *testing.T) {
-	ch := NewChannel("foo")
-	c1 := NewClient()
-	c2 := NewClient()
-	ch.Subscribe(c1)
-	ch.Subscribe(c2)
-	go func() {
-		c2Data := <- c2.C["foo"]
-		c2StringData, _ := c2Data.(string)
-		if c2StringData != "working" {
+func TestChannel_Subscribe(t *testing.T) {
+	p := NewPublisher("foo")
+	var c consumer
+	cs.channels["foo"].Subscribe(c)
+	p.Publish("bar")
+	time.Sleep(time.Second * 1)
+	if "bar" != c.d {
 		t.Fail()
 	}
-	}()
-	go func() {
-		c1Data := <- c1.C["foo"]
-		c1StringData, _ := c1Data.(string)
-		if c1StringData != "working" {
-			t.Fail()
-		}
-	}()
-	ch.Publish("working")
-
+	time.Sleep(time.Second * 1)
+	p.Publish("world")
+	if c.d == "w" {
+		t.Fail()
+	}
 }
