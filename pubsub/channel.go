@@ -1,42 +1,49 @@
 package pubsub
 
-//TODO :
-//	1) improve the design of data structures using interfaces
-//	2) Add comments
+var cs channelStore
 
-
-type Client struct {
-	C map[string] chan interface{}
+type Consumer interface {
+	Consume(data interface{})
 }
 
-func NewClient() *Client {
-	return &Client{make(map[string]chan interface{})}
+type Publisher struct {
+	c *Channel
 }
 
-func (c *Client)Subscribe(channel *Channel) {
-	(*channel).Clients = append((*channel).Clients, c)
-	c.C[(*channel).Name] = make(chan interface{})
+func NewPublisher(name string) Publisher {
+	return Publisher{c: NewChannel(name)}
+}
+
+func (p Publisher)Publish(data interface{})  {
+	for _, s := range (p.c.s){
+		go s.Consume(data)
+	}
 }
 
 type Channel struct {
-	Name string
-	Clients []*Client
+	name string
+	s []Consumer
 }
 
 func NewChannel(name string) *Channel {
-	return &Channel{
-		Name: name,
+	if cs.channels[name] != nil {
+		return cs.channels[name]
 	}
+	c := &Channel{
+		name:name,
+	}
+	cs.channels[name] = c
+	return c
 }
 
-func (c *Channel)Subscribe(cli *Client) {
-	cli.C[c.Name] = make(chan interface{})
-	c.Clients = append(c.Clients, cli)
+func (ch Channel)Subscribe(c Consumer) {
+	ch.s = append(ch.s, c)
 }
 
-func (c *Channel)Publish(v interface{}) {
-	for _, client := range c.Clients {
-		//fmt.Println("Published", v, "to", *client)
-		(*client).C[c.Name] <- v
-	}
+type channelStore struct {
+	channels map[string]*Channel
+}
+
+func init() {
+	cs = channelStore{channels: make(map[string]*Channel)}
 }
