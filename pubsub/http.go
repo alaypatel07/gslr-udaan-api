@@ -9,7 +9,7 @@ type HttpCon struct {
 	http.ResponseWriter
 }
 
-func NewHttp(rw http.ResponseWriter) *HttpCon{
+func NewHttpCon(rw http.ResponseWriter) *HttpCon{
 	return &HttpCon{rw}
 }
 
